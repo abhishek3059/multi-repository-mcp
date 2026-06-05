@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "multi-repo": {
+      "command": "python",
+      "args": [
+        "-m",
+        "multi_repo_mcp.server"
+      ],
+      "env": {
+        "HOME": "C:\\Users\\<you>",
+        "PYTHONPATH": "C:\\Path\\To\\multi-repo-mcp\\src"
+      }
+    }
+  }
+}

@@ -1,0 +1,2 @@
+[console_scripts]
+multi-repo-mcp = multi_repo_mcp.server:main

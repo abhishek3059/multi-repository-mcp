@@ -1,0 +1,72 @@
+{
+  "workspace_root": null,
+  "storage_path": null,
+  "ssh_key_path": null,
+  "github_token": null,
+  "token_injection_hosts": [
+    "github.com"
+  ],
+  "github_org": null,
+  "github_orgs": [],
+  "default_excludes": [
+    "**/node_modules/**",
+    "**/target/**",
+    "**/.git/**",
+    "**/build/**",
+    "**/__pycache__/**",
+    "**/dist/**",
+    "**/.venv/**",
+    "**/.idea/**",
+    "**/.vscode/**",
+    "**/bin/**",
+    "**/obj/**"
+  ],
+  "clone_depth": 1,
+  "git_clone_mode": "auto",
+  "auto_set_git_longpaths": true,
+  "short_path_root": null,
+  "auto_preflight": true,
+  "log_ascii": true,
+  "max_file_size_mb": 10,
+  "cache_ttl_minutes": 30,
+  "max_context_lines": 10,
+  "code_review": {
+    "enabled": true,
+    "openai_api_key": null,
+    "model": "gpt-5.2",
+    "auto_push_threshold": 8.0,
+    "default_review_depth": "standard"
+  },
+  "allow_run_commands": false,
+  "linear_api_key": null,
+  "workspace_rules": {
+    "system_rules": [
+      "Always explain the suspected root cause with evidence.",
+      "Provide multiple fix options when possible.",
+      "Include verification steps (build/test).",
+      "Do not modify code without user approval."
+    ],
+    "user_rules": []
+  },
+  "readme_command_patterns": [
+    "mvn\\s+clean\\s+install",
+    "mvn\\s+test",
+    "mvn\\s+clean\\s+package",
+    "\\.\\/gradlew\\s+build",
+    "\\.\\/gradlew\\s+test",
+    "gradle\\s+build",
+    "gradle\\s+test",
+    "npm\\s+run\\s+build",
+    "npm\\s+run\\s+test",
+    "yarn\\s+build",
+    "yarn\\s+test",
+    "pnpm\\s+build",
+    "pnpm\\s+test",
+    "python\\s+-m\\s+pytest(?:\\s+[A-Za-z0-9_./:-]+)*",
+    "pytest(?:\\s+[A-Za-z0-9_./:-]+)*",
+    "poetry\\s+run\\s+pytest(?:\\s+[A-Za-z0-9_./:-]+)*",
+    "uv\\s+run\\s+pytest(?:\\s+[A-Za-z0-9_./:-]+)*",
+    "make\\s+build",
+    "make\\s+test"
+  ]
+}

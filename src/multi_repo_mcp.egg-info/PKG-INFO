@@ -1,0 +1,328 @@
+Metadata-Version: 2.4
+Name: multi-repo-mcp
+Version: 0.1.0
+Summary: MCP server for managing and working with multiple Git repositories simultaneously
+Author: Multi-Repo MCP Contributors
+License: MIT
+Keywords: mcp,git,multi-repo,development,cline
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: mcp==1.17.0
+Requires-Dist: gitpython>=3.1.40
+Requires-Dist: pydantic>=2.0.0
+Requires-Dist: aiofiles>=23.0.0
+Requires-Dist: openai>=1.0.0
+Requires-Dist: requests>=2.31.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.21.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: mypy>=1.0.0; extra == "dev"
+
+# Multi-Repo MCP
+
+Multi-Repo MCP is a **Model Context Protocol (MCP) server** that lets an AI agent work across **multiple Git repositories as one logical workspace**.
+
+Instead of opening repos one by one and manually piecing together controller, service, config, database, and shared-library changes, the MCP server gives the agent a workspace-aware view of the codebase and tools to search, read, verify, and manage changes across repos.
+
+---
+
+## Why this exists
+
+In Microservices-style systems, one feature often spans multiple repositories:
+
+- UI or controller code in one repo
+- service/business logic in another
+- shared models or utilities in another
+- configuration, deployment, or integration code somewhere else
+
+Without workspace-level tooling, AI agents and developers lose time on:
+
+- repeated repo switching
+- duplicate searching
+- incomplete code-flow understanding
+- missed cross-repo dependencies
+- inconsistent changes between related repos
+
+Multi-Repo MCP solves that by turning a set of repositories into a **managed workspace** with metadata, context artifacts, and repo-aware tools.
+
+---
+
+## What it does
+
+### 1. Workspace management
+It can:
+
+- create a workspace from one or more repositories
+- switch between workspaces
+- add repositories to an existing workspace
+- keep track of which workspace is active
+- store workspace metadata and generated context
+
+### 2. Cross-repo discovery
+It helps an agent quickly answer questions like:
+
+- Where is this endpoint implemented?
+- Which repo owns this class or route?
+- What files are likely involved in this ticket?
+- Where is this config duplicated?
+- What code path connects controller -> service -> downstream client?
+
+### 3. Context generation
+It generates reusable workspace artifacts such as:
+
+- `context.md` / `WORKSPACE_CONTEXT.md`
+- `.mcp/repo_index.json`
+- `.mcp/digests.json`
+- `.mcp/retrieval/chunks.json`
+- `.mcp/retrieval/logic_chunks.json`
+- `.mcp/architecture_map.json`
+- repo summaries under `.mcp/summaries/`
+
+These artifacts make future search and analysis faster and more accurate.
+
+### 4. Code and git operations
+It provides tools to:
+
+- search across repos
+- read files from a specific repo
+- inspect git status
+- create or switch branches
+- run commands across repos
+- verify builds/tests
+- apply changes
+- commit and push
+- support review-oriented workflows
+
+### 5. Workflow support
+It also supports structured task workflows, including:
+
+- workflow sessions
+- ticket analysis
+- candidate file location
+- context bundle preparation
+- verification planning
+- subagent packets/results
+
+---
+
+## Core concepts
+
+### Workspace
+A workspace is a named collection of repositories that should be treated as one working set.
+
+Example:
+
+- `repo1`
+- `repo2`
+- `repo3`
+
+can live inside one workspace if they are part of the same investigation or feature.
+
+### Active workspace
+Only one workspace is active at a time. Most MCP operations use the active workspace unless a workspace name is explicitly passed.
+
+### Workspace context
+After workspace setup, switching, or repo addition, the workspace context should be refreshed so the MCP regenerates metadata and search artifacts.
+
+### Context-first workflow
+A recommended pattern is:
+
+1. activate or create the workspace
+2. refresh workspace context
+3. read `context.md` / `WORKSPACE_CONTEXT.md`
+4. use `workspace_locate` before broad search
+5. only then do deeper file reads or edits
+
+---
+
+## Typical workflow
+
+### New workspace
+1. Create or ensure a workspace
+2. Clone/add the required repos
+3. Refresh workspace context
+4. Read `context.md`
+5. Use locate/search tools to understand the code
+6. Make minimal changes
+7. Verify
+8. Update context/task log if needed
+
+### Existing workspace
+1. Switch to the workspace
+2. Refresh workspace context if this is the first use in the chat or the workspace changed
+3. Read `context.md`
+4. Investigate, edit, verify
+
+### After adding a repo
+1. Add the repo
+2. Refresh workspace context again
+3. Read the updated workspace context before continuing
+
+---
+
+## Common tools
+
+The exact tool set can evolve, but common categories include:
+
+### Workspace tools
+- `list_workspaces`
+- `switch_workspace`
+- `setup_workspace`
+- `ensure_workspace`
+- `add_repos_to_workspace`
+- `get_active_workspace`
+- `get_workspace_info`
+- `refresh_workspace_context`
+
+### Discovery tools
+- `workspace_locate`
+- `locate_candidates`
+- `search_repos`
+- `find_file`
+- `get_file`
+- `get_file_multiple`
+
+### Workflow tools
+- `start_workflow`
+- `prepare_context_bundle`
+- `prepare_subagent_packet`
+- `run_subagent`
+- `merge_subagent_results`
+- `analyze_ticket`
+- `build_verification_plan`
+
+### Git / execution tools
+- `git_status_all`
+- `get_detailed_status`
+- `create_branch_all`
+- `switch_branch_all`
+- `run_command_in_repos`
+- `verify_repos`
+- `stage_and_commit_repo`
+- `commit_and_push_all`
+- `push_with_review`
+
+---
+
+## Recommended usage pattern for agents
+
+When an AI agent uses Multi-Repo MCP effectively, it should:
+
+1. determine the correct workspace
+2. refresh workspace context when required
+3. read `context.md` / `WORKSPACE_CONTEXT.md`
+4. use workspace-level locate tools before broad searches
+5. read only the files needed
+6. make the smallest valid change
+7. verify before claiming completion
+
+This keeps context smaller, reduces wasted tokens, and improves cross-repo correctness.
+
+---
+
+## Installation
+
+### Requirements
+- Python 3.10+
+- Git
+- access to the target Git remotes
+- an MCP-capable client such as Codex or Cline
+
+### Install in editable mode
+
+```bash
+pip install -e .
+```
+
+### Run the server
+
+```bash
+python -m multi_repo_mcp.server
+```
+
+---
+
+## Configuration
+
+Configuration can be controlled through repo config, user config, or MCP tools.
+
+Common settings include:
+
+- workspace root/storage path
+- SSH key path
+- clone depth
+- search excludes
+- cache limits
+- context sizing limits
+
+See:
+
+- `config/`
+- `docs/guides/QUICKSTART.md`
+- `docs/guides/EFFECTIVE_MCP_SERVER_USAGE.md`
+
+---
+
+## Example client configuration
+
+### Codex / stdio MCP
+
+```toml
+[mcp_servers.multi_repo]
+transport = "stdio"
+command = "C:\\Path\\To\\python.exe"
+args = ["-m", "multi_repo_mcp.server"]
+```
+
+### Cline / MCP
+
+```json
+{
+  "mcpServers": {
+    "multi_repo": {
+      "command": "python",
+      "args": ["-m", "multi_repo_mcp.server"]
+    }
+  }
+}
+```
+
+Adjust paths and environment variables for your machine.
+
+---
+
+## Repository structure
+
+Key files/directories:
+
+- `README.md` - main overview
+- `AGENTS.md` - canonical local agent workflow
+- `agent.md` - compatibility entrypoint that points to `AGENTS.md`
+- `docs/` - guides and reference docs
+- `src/` - implementation
+- `config/` - configuration
+- `context.md` / `WORKSPACE_CONTEXT.md` - generated repo/workspace guidance
+
+---
+
+## Documentation map
+
+Start here:
+
+- `docs/README.md`
+- `docs/guides/QUICKSTART.md`
+- `docs/guides/EFFECTIVE_MCP_SERVER_USAGE.md`
+- `AGENTS.md`
+
+---
+
+## In one sentence
+
+**Multi-Repo MCP is a workspace-aware MCP server that helps AI agents and developers understand, search, and change multiple related repositories as one coordinated system.**

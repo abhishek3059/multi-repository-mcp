@@ -1,0 +1,21 @@
+# Example Codex MCP configuration
+#
+# Put this content in either:
+#   - ~/.codex/config.toml   (global)
+#   - .codex/config.toml     (per-project)
+#
+# Then update the `command` path to your venv Python.
+
+[mcp_servers.multi_repo]
+transport = "stdio"
+
+# macOS/Linux example:
+# command = "/ABS/PATH/TO/multi-repo-mcp/.venv/bin/python"
+
+# Windows example:
+# command = "D:\\dev\\multi-repo-mcp\\.venv\\Scripts\\python.exe"
+
+args = ["-m", "multi_repo_mcp.server"]
+
+# Helps git find ~/.ssh and lets code review read the OpenAI key from env
+# env = { HOME = "/Users/<you>", OPENAI_API_KEY = "<openai-api-key>" }
